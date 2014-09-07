@@ -1,15 +1,17 @@
 package com.bitsworking.videoshowcase.datatypes;
 
 
+import android.net.Uri;
+
 /**
  * Created by Chris Hager <chris@linuxuser.at> on 07/09/14.
  */
 public class ShowcaseItem {
     public enum SHOWCASE_ITEM_TYPE {
         VIDEO_LOCAL,
-        VIDEO_REMOTE,
-        IMAGE,
-        LINK
+//        VIDEO_REMOTE,
+//        IMAGE,
+//        LINK
     }
 
     public SHOWCASE_ITEM_TYPE type = SHOWCASE_ITEM_TYPE.VIDEO_LOCAL;
@@ -33,5 +35,13 @@ public class ShowcaseItem {
     @Override
     public String toString() {
         return getClass().getName() + String.format("[%s, %s, %s, '%s']", this.type, this.resourceFn, this.thumbnailFn, this.text);
+    }
+
+    public Uri getResourceUri() {
+        return Uri.parse("file://" + directory + "/" + resourceFn);
+    }
+
+    public Uri getThumbnailUri() {
+        return (thumbnailFn == null) ? null : Uri.parse("file://" + directory + "/" + thumbnailFn);
     }
 }

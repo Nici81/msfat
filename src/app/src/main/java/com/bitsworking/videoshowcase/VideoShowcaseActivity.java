@@ -90,9 +90,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
         public void onListItemClick(ListView l, View v, int position, long id){
             Intent intentToPlayVideo = new Intent(Intent.ACTION_VIEW);
             ShowcaseItem item = showcaseItems.get(position);
-            String fn = "file://" + item.directory + "/" + item.resourceFn;
-            Log.v(TAG, "show video - filename: " + fn);
-            intentToPlayVideo.setDataAndType(Uri.parse(fn), "video/*");
+            intentToPlayVideo.setDataAndType(item.getResourceUri(), "video/*");
             if (Tools.isCallable(getActivity(), intentToPlayVideo)) {
                 startActivity(intentToPlayVideo);
             } else {
