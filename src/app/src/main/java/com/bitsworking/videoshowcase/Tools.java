@@ -1,11 +1,25 @@
 package com.bitsworking.videoshowcase;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Environment;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Chris Hager <chris@linuxuser.at> on 07/09/14.
  */
 public class Tools {
+    public static boolean isCallable(Context context, Intent intent) {
+        List<ResolveInfo> list = context.getPackageManager().queryIntentActivities(intent,
+                PackageManager.MATCH_DEFAULT_ONLY);
+        return list.size() > 0;
+    }
+
     /* Checks if external storage is available for read and write */
     public static boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
@@ -23,5 +37,30 @@ public class Tools {
             return true;
         }
         return false;
+    }
+
+    public static ArrayList<String> getFiles(File dir) {
+        ArrayList<String> fileList = new ArrayList<String>();
+
+        File listFile[] = dir.listFiles();
+        if (listFile != null && listFile.length > 0) {
+            for (int i = 0; i < listFile.length; i++) {
+                if (listFile[i].isDirectory()) {
+//                    fileList.add(listFile[i].getName());
+//                    getFiles(listFile[i]);
+                } else {
+//                    if (listFile[i].getName().endsWith(".png")
+//                            || listFile[i].getName().endsWith(".jpg")
+//                            || listFile[i].getName().endsWith(".jpeg")
+//                            || listFile[i].getName().endsWith(".gif"))
+//
+//                    {
+                    fileList.add(listFile[i].getName());
+//                    }
+                }
+
+            }
+        }
+        return fileList;
     }
 }

@@ -1,8 +1,6 @@
 package com.bitsworking.videoshowcase.datatypes;
 
 
-import java.net.URI;
-
 /**
  * Created by Chris Hager <chris@linuxuser.at> on 07/09/14.
  */
@@ -14,17 +12,19 @@ public class ShowcaseItem {
         LINK
     }
 
-    private SHOWCASE_ITEM_TYPE type = SHOWCASE_ITEM_TYPE.VIDEO_LOCAL;
-    private String resource = null;
-    private String thumbnail = null;
-    private String text = "";
+    public SHOWCASE_ITEM_TYPE type = SHOWCASE_ITEM_TYPE.VIDEO_LOCAL;
+    public String resourceFn = null;
+    public String thumbnailFn = null;
+    public String directory = null;
+    public String text = "";
 
-    public ShowcaseItem(SHOWCASE_ITEM_TYPE type, String resource, String thumbnail) {
+    public ShowcaseItem(SHOWCASE_ITEM_TYPE type, String directory, String resourceFn, String thumbnailFn) {
         this.type = type;
-        this.resource = resource;
-        this.thumbnail = thumbnail;
+        this.directory = directory;
+        this.resourceFn = resourceFn;
+        this.thumbnailFn = thumbnailFn;
 
-        this.text = new String(resource);
+        this.text = new String(resourceFn);
         this.text = this.text.substring(this.text.indexOf("_") + 1);
         this.text = this.text.substring(0, this.text.lastIndexOf("."));
         this.text = this.text.replaceAll("[-_]", " ");
@@ -32,6 +32,6 @@ public class ShowcaseItem {
 
     @Override
     public String toString() {
-        return getClass().getName() + String.format("[%s, %s, %s, '%s']", this.type, this.resource, this.thumbnail, this.text);
+        return getClass().getName() + String.format("[%s, %s, %s, '%s']", this.type, this.resourceFn, this.thumbnailFn, this.text);
     }
 }

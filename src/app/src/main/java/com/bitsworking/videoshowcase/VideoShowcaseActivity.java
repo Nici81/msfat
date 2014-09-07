@@ -1,7 +1,9 @@
 package com.bitsworking.videoshowcase;
 
 import android.app.Activity;
-import android.app.Fragment;
+import android.app.ListFragment;
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -11,13 +13,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bitsworking.videoshowcase.datatypes.ShowcaseItem;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 /**
@@ -26,19 +29,15 @@ import java.util.ArrayList;
 public class VideoShowcaseActivity extends Activity implements Constants {
     private final String TAG = "VideoShowcaseActivity";
 
-    private ArrayList<String> fileList = null;
-    private ArrayList<ShowcaseItem> showcaseItems = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_videoshowcase);
 
-        updateShowcaseItems();
-
+        Log.v(TAG, "===== uri=" + Environment.getExternalStorageDirectory().getAbsolutePath());
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
+                    .add(R.id.container, new ShowcaseFragment())
                     .commit();
         }
     }
@@ -66,79 +65,98 @@ public class VideoShowcaseActivity extends Activity implements Constants {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class ShowcaseFragment extends ListFragment {
+        private final String TAG = "VideoShowcaseActivity#ShowcaseFragment";
 
-        public PlaceholderFragment() {
+        private ArrayList<ShowcaseItem> showcaseItems = null;
+        private ShowcaseItemAdapter listAdapter = null;
+
+        public ShowcaseFragment() {
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_videoshowcase, container, false);
+
+            showcaseItems = getShowcaseFileListFromSDCard();
+            listAdapter = new ShowcaseItemAdapter(getActivity().getBaseContext(), showcaseItems);
+            setListAdapter(listAdapter);
+
             return rootView;
         }
-    }
 
-    private void updateShowcaseItems() {
-        fileList = new ArrayList<String>();
-        showcaseItems = new ArrayList<ShowcaseItem>();
-
-        String dir = Environment.getExternalStorageDirectory().getAbsolutePath() + SD_DIRECTORY_VIDEOS;
-        Log.v(TAG, "sd dir: " + dir);
-        File root = new File(dir);
-
-        getFiles(root);
-
-        // Build SHOWCASE_ITEMS
-        for (int i=0; i<fileList.size(); i++) {
-            String fn = fileList.get(i);
-//            Log.v(TAG, "file: " + fn);
-            if (fn.startsWith("video")) {
-                String videoId = fn.substring(0, fn.indexOf("_"));
-                String thumbFn = "thumbnail_" + videoId + ".png";
-
-                ShowcaseItem item = new ShowcaseItem(
-                        ShowcaseItem.SHOWCASE_ITEM_TYPE.VIDEO_LOCAL,
-                        fn, thumbFn);
-
-                showcaseItems.add(item);
-                Log.v(TAG, "Showcase Item: " + item);
+        @Override
+        public void onListItemClick(ListView l, View v, int position, long id){
+            Intent intentToPlayVideo = new Intent(Intent.ACTION_VIEW);
+            ShowcaseItem item = showcaseItems.get(position);
+            String fn = "file://" + item.directory + "/" + item.resourceFn;
+            Log.v(TAG, "show video - filename: " + fn);
+            intentToPlayVideo.setDataAndType(Uri.parse(fn), "video/*");
+            if (Tools.isCallable(getActivity(), intentToPlayVideo)) {
+                startActivity(intentToPlayVideo);
+            } else {
+                Toast.makeText(getActivity(), "No app can handle this file", Toast.LENGTH_LONG).show();
             }
         }
 
-//
-//
-//        try {
-//            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.VIDEO_LOCAL, new URI("file:///test.jpg"), new URI("file:///test.mp4")));
-//            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.VIDEO_LOCAL, new URI("file:///test2.jpg"), new URI("file:///test2.mp4")));
-//            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.VIDEO_LOCAL, new URI("file:///test3.jpg"), new URI("file:///test3.mp4")));
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//        }
-    }
+        public class ShowcaseItemAdapter extends ArrayAdapter<ShowcaseItem> {
+            public ShowcaseItemAdapter(Context context, ArrayList<ShowcaseItem> showcaseItems) {
+                super(context, R.layout.listitem_showcase, showcaseItems);
+            }
 
-    private ArrayList<String> getFiles(File dir) {
-        File listFile[] = dir.listFiles();
-        if (listFile != null && listFile.length > 0) {
-            for (int i = 0; i < listFile.length; i++) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                // Get the data item for this position
+                ShowcaseItem item = getItem(position);
 
-                if (listFile[i].isDirectory()) {
-//                    fileList.add(listFile[i].getName());
-//                    getFiles(listFile[i]);
-
-                } else {
-//                    if (listFile[i].getName().endsWith(".png")
-//                            || listFile[i].getName().endsWith(".jpg")
-//                            || listFile[i].getName().endsWith(".jpeg")
-//                            || listFile[i].getName().endsWith(".gif"))
-//
-//                    {
-                        fileList.add(listFile[i].getName());
-//                    }
+                // Check if an existing view is being reused, otherwise inflate the view
+                if (convertView == null) {
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.listitem_showcase, parent, false);
                 }
 
+                // Lookup view for data population
+                TextView tv0 = (TextView) convertView.findViewById(R.id.text0);
+                TextView tv1 = (TextView) convertView.findViewById(R.id.text1);
+                TextView tv2 = (TextView) convertView.findViewById(R.id.text2);
+
+                // Populate the data into the template view using the data object
+                tv0.setText(item.text);
+                tv1.setText(item.directory + item.resourceFn);
+                tv2.setText(item.directory + item.thumbnailFn);
+
+                // Return the completed view to render on screen
+                return convertView;
             }
         }
-        return fileList;
+
+
+        private ArrayList<ShowcaseItem> getShowcaseFileListFromSDCard() {
+            ArrayList<ShowcaseItem> items = new ArrayList<ShowcaseItem>();
+
+            String dir = Environment.getExternalStorageDirectory().getAbsolutePath() + SD_DIRECTORY_VIDEOS;
+            Log.v(TAG, "sd dir: " + dir);
+            File root = new File(dir);
+
+            ArrayList<String> fileList = Tools.getFiles(root);
+
+            // Build Showcase Items
+            for (int i = 0; i < fileList.size(); i++) {
+                String fn = fileList.get(i);
+                if (fn.startsWith("video")) {
+                    String videoId = fn.substring(0, fn.indexOf("_"));
+                    String thumbFn = "thumbnail_" + videoId + ".png";
+
+                    ShowcaseItem item = new ShowcaseItem(
+                            ShowcaseItem.SHOWCASE_ITEM_TYPE.VIDEO_LOCAL,
+                            dir, fn, thumbFn);
+
+                    items.add(item);
+                    Log.v(TAG, "Showcase Item: " + item);
+                }
+            }
+
+            return items;
+        }
     }
 }
