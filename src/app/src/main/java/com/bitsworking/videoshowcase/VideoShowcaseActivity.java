@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -114,14 +117,16 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                 }
 
                 // Lookup view for data population
-                TextView tv0 = (TextView) convertView.findViewById(R.id.text0);
-                TextView tv1 = (TextView) convertView.findViewById(R.id.text1);
-                TextView tv2 = (TextView) convertView.findViewById(R.id.text2);
+                TextView tv0 = (TextView) convertView.findViewById(R.id.text);
+                tv0.setText(item.text);
+
+                ImageView iv0 = (ImageView) convertView.findViewById(R.id.thumbnail);
+                Bitmap bmp = BitmapFactory.decodeFile(item.getThumbnailFullFilename());
+                iv0.setImageBitmap(bmp);
 
                 // Populate the data into the template view using the data object
-                tv0.setText(item.text);
-                tv1.setText(item.directory + item.resourceFn);
-                tv2.setText(item.directory + item.thumbnailFn);
+//                tv1.setText(item.directory + item.resourceFn);
+//                tv2.setText(item.directory + item.thumbnailFn);
 
                 // Return the completed view to render on screen
                 return convertView;

@@ -37,11 +37,13 @@ public class ShowcaseItem {
         return getClass().getName() + String.format("[%s, %s, %s, '%s']", this.type, this.resourceFn, this.thumbnailFn, this.text);
     }
 
+    /* Returns an Uri like Uri.parse("file:///storage/emulated/0/videos/video1.mp4") */
     public Uri getResourceUri() {
         return Uri.parse("file://" + directory + "/" + resourceFn);
     }
 
-    public Uri getThumbnailUri() {
-        return (thumbnailFn == null) ? null : Uri.parse("file://" + directory + "/" + thumbnailFn);
+    /* Returns a full filename like `/storage/emulated/0/videos/video1.mp4` */
+    public String getThumbnailFullFilename() {
+        return (thumbnailFn == null) ? null : directory + "/" + thumbnailFn;
     }
 }

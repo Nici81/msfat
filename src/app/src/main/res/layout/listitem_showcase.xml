@@ -3,25 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
-    <TextView android:id="@+id/text0"
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="80dp"
+        android:id="@+id/thumbnail"
+        />
+
+    <TextView android:id="@+id/text"
         android:textSize="22sp"
-        android:textStyle="bold"
-        android:text="Test"
+        android:layout_marginLeft="10dp"
+        android:text="Text"
+        android:layout_gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <TextView android:id="@+id/text1"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:text="Test"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <TextView android:id="@+id/text2"
-        android:textSize="16sp"
-        android:text="Test"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
 </LinearLayout>
