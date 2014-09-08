@@ -31,14 +31,25 @@ Video Files
 Restricted Internet Access
 --------------------------
 
+There are several options to restrict internet access on the device:
+
 * MDM Solution (eg. [AirWatch](http://www.air-watch.com) or [others](http://www.zdnet.com/blog/consumerization/10-byod-mobile-device-management-suites-you-need-to-know/422))
 * NoRoot Firewall (blocks Internet Access for Apps via VPN, no password lock)
 * Custom VPN
+* ...
 
 
-Keep App Running and in Foreground
-----------------------------------
+Keep App Running and in Foreground (Kiosk Mode)
+-----------------------------------------------
+
+It's important that the showcase app is always running and on top (called 'Kiosk mode'). 
+This can be achieved in two ways:
 
 * External App: [Autostart and StaY!](https://play.google.com/store/apps/details?id=com.atasoglou.autostartandstay)
-* Via Code: http://stackoverflow.com/a/24251210
+* Via Code: 
+  * http://stackoverflow.com/a/24251210 (App persistance)
+  * http://stackoverflow.com/a/19313091 (Be a home screen)
 
+Hide System UI
+
+* https://developer.android.com/training/system-ui/immersive.html

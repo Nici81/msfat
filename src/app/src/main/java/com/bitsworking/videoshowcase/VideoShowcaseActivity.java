@@ -1,6 +1,7 @@
 package com.bitsworking.videoshowcase;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +47,20 @@ public class VideoShowcaseActivity extends Activity implements Constants {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        // We doing this too stop user from exiting app, normally.
+        // super.onBackPressed();
+    }
+
+    @Override
+    protected void onPause() {
+        // For long press home button( recent app activity or google now) or recent app button ...
+        super.onPause();
+        ActivityManager activityManager = (ActivityManager) getApplicationContext()
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.moveTaskToFront(getTaskId(), 0);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

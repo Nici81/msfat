@@ -66,13 +66,14 @@ public class BrowserActivity extends Activity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_browser, container, false);
 
-            WebView webview = (WebView) rootView.findViewById(R.id.webView);
+            WebView webView = (WebView) rootView.findViewById(R.id.webView);
 
-            webview.getSettings().setJavaScriptEnabled(true);
-            webview.getSettings().setBuiltInZoomControls(true);
-            webview.setWebViewClient(new LimitingWebViewClient());
+            webView.getSettings().setJavaScriptEnabled(true);
+            webView.getSettings().setBuiltInZoomControls(true);
+            webView.setWebViewClient(new LimitingWebViewClient());
+//            webView.clearCache(true);
 
-            webview.loadUrl(getArguments().getString("url"));
+            webView.loadUrl(getArguments().getString("url"));
             return rootView;
         }
 
