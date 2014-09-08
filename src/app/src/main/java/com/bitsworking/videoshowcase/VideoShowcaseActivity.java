@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -37,7 +38,6 @@ public class VideoShowcaseActivity extends Activity implements Constants {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_videoshowcase);
 
-        Log.v(TAG, "===== uri=" + Environment.getExternalStorageDirectory().getAbsolutePath());
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, new ShowcaseFragment())
@@ -83,6 +83,10 @@ public class VideoShowcaseActivity extends Activity implements Constants {
             View rootView = inflater.inflate(R.layout.fragment_videoshowcase, container, false);
 
             showcaseItems = getShowcaseFileListFromSDCard();
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "https://www.aerzte-ohne-grenzen.at/spenden", null, "Jetzt Spenden"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "http://www.break-the-silence.at", null, "Break The Silence"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.INTERNAL, null, "newsletter", null, "Newsletter"));
+
             listAdapter = new ShowcaseItemAdapter(getActivity().getBaseContext(), showcaseItems);
             setListAdapter(listAdapter);
 
@@ -91,13 +95,27 @@ public class VideoShowcaseActivity extends Activity implements Constants {
 
         @Override
         public void onListItemClick(ListView l, View v, int position, long id){
-            Intent intentToPlayVideo = new Intent(Intent.ACTION_VIEW);
             ShowcaseItem item = showcaseItems.get(position);
-            intentToPlayVideo.setDataAndType(item.getResourceUri(), "video/*");
-            if (Tools.isCallable(getActivity(), intentToPlayVideo)) {
-                startActivity(intentToPlayVideo);
-            } else {
-                Toast.makeText(getActivity(), "No app can handle this file", Toast.LENGTH_LONG).show();
+            Log.v(TAG, String.format("onListItemClick: pos=%s, uri=%s", position, item.getResourceUri()));
+
+            if (item.type == ShowcaseItem.SHOWCASE_ITEM_TYPE.VIDEO_LOCAL) {
+                // Prepare Video Playback Intent
+                Intent intentToPlayVideo = new Intent(Intent.ACTION_VIEW);
+                intentToPlayVideo.setDataAndType(item.getResourceUri(), "video/*");
+                intentToPlayVideo.putExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
+
+                // Check and launch Intent
+                if (Tools.isCallable(getActivity(), intentToPlayVideo)) {
+                    startActivity(intentToPlayVideo);
+                } else {
+                    Toast.makeText(getActivity(), "No app can handle this file", Toast.LENGTH_LONG).show();
+                }
+
+            } else if (item.type == ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK) {
+                Intent intent = new Intent(getActivity(), BrowserActivity.class);
+                intent.putExtra("url", item.getResourceString());
+                startActivity(intent);
+
             }
         }
 
@@ -121,8 +139,14 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                 tv0.setText(item.text);
 
                 ImageView iv0 = (ImageView) convertView.findViewById(R.id.thumbnail);
-                Bitmap bmp = BitmapFactory.decodeFile(item.getThumbnailFullFilename());
-                iv0.setImageBitmap(bmp);
+                if (item.getThumbnailFullFilename() == null) {
+                    iv0.setImageBitmap(null);
+                    iv0.setVisibility(View.GONE);
+                } else {
+                    Bitmap bmp = BitmapFactory.decodeFile(item.getThumbnailFullFilename());
+                    iv0.setImageBitmap(bmp);
+                    iv0.setVisibility(View.VISIBLE);
+                }
 
                 // Populate the data into the template view using the data object
 //                tv1.setText(item.directory + item.resourceFn);
@@ -137,7 +161,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
         private ArrayList<ShowcaseItem> getShowcaseFileListFromSDCard() {
             ArrayList<ShowcaseItem> items = new ArrayList<ShowcaseItem>();
 
-            String dir = Environment.getExternalStorageDirectory().getAbsolutePath() + SD_DIRECTORY_VIDEOS;
+            String dir = Tools.getSdCardDirectory();
             Log.v(TAG, "sd dir: " + dir);
             File root = new File(dir);
 
@@ -152,7 +176,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
 
                     ShowcaseItem item = new ShowcaseItem(
                             ShowcaseItem.SHOWCASE_ITEM_TYPE.VIDEO_LOCAL,
-                            dir, fn, thumbFn);
+                            dir, fn, thumbFn, null);
 
                     items.add(item);
                     Log.v(TAG, "Showcase Item: " + item);

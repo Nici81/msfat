@@ -11,7 +11,8 @@ public class ShowcaseItem {
         VIDEO_LOCAL,
 //        VIDEO_REMOTE,
 //        IMAGE,
-//        LINK
+        LINK,
+        INTERNAL
     }
 
     public SHOWCASE_ITEM_TYPE type = SHOWCASE_ITEM_TYPE.VIDEO_LOCAL;
@@ -20,16 +21,22 @@ public class ShowcaseItem {
     public String directory = null;
     public String text = "";
 
-    public ShowcaseItem(SHOWCASE_ITEM_TYPE type, String directory, String resourceFn, String thumbnailFn) {
+    public ShowcaseItem(SHOWCASE_ITEM_TYPE type, String directory, String resourceFn, String thumbnailFn, String text) {
         this.type = type;
         this.directory = directory;
         this.resourceFn = resourceFn;
         this.thumbnailFn = thumbnailFn;
 
-        this.text = new String(resourceFn);
-        this.text = this.text.substring(this.text.indexOf("_") + 1);
-        this.text = this.text.substring(0, this.text.lastIndexOf("."));
-        this.text = this.text.replaceAll("[-_]", " ");
+        if (text != null) {
+            this.text = text;
+
+        } else if (type == SHOWCASE_ITEM_TYPE.VIDEO_LOCAL) {
+            // If video, get text from filename
+            this.text = resourceFn;
+            this.text = this.text.substring(this.text.indexOf("_") + 1);
+            this.text = this.text.substring(0, this.text.lastIndexOf("."));
+            this.text = this.text.replaceAll("[-_]", " ");
+        }
     }
 
     @Override
@@ -39,7 +46,15 @@ public class ShowcaseItem {
 
     /* Returns an Uri like Uri.parse("file:///storage/emulated/0/videos/video1.mp4") */
     public Uri getResourceUri() {
-        return Uri.parse("file://" + directory + "/" + resourceFn);
+        if (type == SHOWCASE_ITEM_TYPE.VIDEO_LOCAL) {
+            return Uri.parse("file://" + directory + "/" + resourceFn);
+        } else {
+            return Uri.parse(resourceFn);
+        }
+    }
+
+    public String getResourceString() {
+        return resourceFn;
     }
 
     /* Returns a full filename like `/storage/emulated/0/videos/video1.mp4` */

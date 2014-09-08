@@ -14,6 +14,10 @@ import java.util.List;
  * Created by Chris Hager <chris@linuxuser.at> on 07/09/14.
  */
 public class Tools {
+    public static String getSdCardDirectory() {
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + Constants.SD_DIRECTORY_VIDEOS;
+    }
+
     public static boolean isCallable(Context context, Intent intent) {
         List<ResolveInfo> list = context.getPackageManager().queryIntentActivities(intent,
                 PackageManager.MATCH_DEFAULT_ONLY);
