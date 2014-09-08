@@ -70,6 +70,7 @@ public class BrowserActivity extends Activity {
             WebView webview = (WebView) rootView.findViewById(R.id.webView);
             webview.getSettings().setJavaScriptEnabled(true);
             webview.setWebViewClient(new LimitingWebViewClient());
+            webview.getSettings().setBuiltInZoomControls(true);
             webview.loadUrl(getArguments().getString("url"));
             return rootView;
         }
@@ -78,7 +79,11 @@ public class BrowserActivity extends Activity {
         private class LimitingWebViewClient extends WebViewClient {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Log.v(TAG, "host: " + Uri.parse(url).getHost());
+                Log.v(TAG, String.format("url: %s, host: %s", url, Uri.parse(url).getHost()));
+
+                if (Uri.parse(url).getHost() == null) {
+                    return false;
+                }
 
                 if ((Uri.parse(url).getHost().equals("www.aerzte-ohne-grenzen.at")) || (Uri.parse(url).getHost().equals("www.break-the-silence.at"))) {
                     // This is my web site, so do not override; let my WebView load the page
