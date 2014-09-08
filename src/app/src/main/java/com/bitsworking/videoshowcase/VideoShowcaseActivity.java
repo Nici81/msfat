@@ -2,6 +2,7 @@ package com.bitsworking.videoshowcase;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Fragment;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
@@ -21,7 +22,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -110,11 +113,10 @@ public class VideoShowcaseActivity extends Activity implements Constants {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class ShowcaseFragment extends ListFragment {
+    public static class ShowcaseFragment extends Fragment {
         private final String TAG = "VideoShowcaseActivity#ShowcaseFragment";
 
         private ArrayList<ShowcaseItem> showcaseItems = null;
-        private ShowcaseItemAdapter listAdapter = null;
 
         public ShowcaseFragment() {
         }
@@ -127,78 +129,40 @@ public class VideoShowcaseActivity extends Activity implements Constants {
             showcaseItems = getShowcaseFileListFromSDCard();
             showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "https://www.aerzte-ohne-grenzen.at/spenden", null, "Jetzt Spenden"));
             showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "http://www.break-the-silence.at", null, "Break The Silence"));
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "https://www.aerzte-ohne-grenzen.at/newsletter/newsletter-abonnieren", null, "Newsletter"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "https://www.aerzte-ohne-grenzen.at/newsletter/newsletter-abonnieren", null, "Newsletter Abonnieren"));
 
-            listAdapter = new ShowcaseItemAdapter(getActivity().getBaseContext(), showcaseItems);
-            setListAdapter(listAdapter);
+            GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
+            gridview.setAdapter(new VideoGridAdapter(getActivity(), showcaseItems));
+
+            gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                    ShowcaseItem item = showcaseItems.get(position);
+                    Log.v(TAG, String.format("onListItemClick: pos=%s, uri=%s", position, item.getResourceUri()));
+
+                    if (item.type == ShowcaseItem.SHOWCASE_ITEM_TYPE.VIDEO_LOCAL) {
+                        // Prepare Video Playback Intent
+                        Intent intentToPlayVideo = new Intent(Intent.ACTION_VIEW);
+                        intentToPlayVideo.setDataAndType(item.getResourceUri(), "video/*");
+                        intentToPlayVideo.putExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
+
+                        // Check and launch Intent
+                        if (Tools.isCallable(getActivity(), intentToPlayVideo)) {
+                            startActivity(intentToPlayVideo);
+                        } else {
+                            Toast.makeText(getActivity(), "No app can handle this file", Toast.LENGTH_LONG).show();
+                        }
+
+                    } else if (item.type == ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK) {
+                        Intent intent = new Intent(getActivity(), BrowserActivity.class);
+                        intent.putExtra("url", item.getResourceString());
+                        startActivity(intent);
+
+                    }
+                }
+            });
 
             return rootView;
         }
-
-        @Override
-        public void onListItemClick(ListView l, View v, int position, long id){
-            ShowcaseItem item = showcaseItems.get(position);
-            Log.v(TAG, String.format("onListItemClick: pos=%s, uri=%s", position, item.getResourceUri()));
-
-            if (item.type == ShowcaseItem.SHOWCASE_ITEM_TYPE.VIDEO_LOCAL) {
-                // Prepare Video Playback Intent
-                Intent intentToPlayVideo = new Intent(Intent.ACTION_VIEW);
-                intentToPlayVideo.setDataAndType(item.getResourceUri(), "video/*");
-                intentToPlayVideo.putExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
-
-                // Check and launch Intent
-                if (Tools.isCallable(getActivity(), intentToPlayVideo)) {
-                    startActivity(intentToPlayVideo);
-                } else {
-                    Toast.makeText(getActivity(), "No app can handle this file", Toast.LENGTH_LONG).show();
-                }
-
-            } else if (item.type == ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK) {
-                Intent intent = new Intent(getActivity(), BrowserActivity.class);
-                intent.putExtra("url", item.getResourceString());
-                startActivity(intent);
-
-            }
-        }
-
-        public class ShowcaseItemAdapter extends ArrayAdapter<ShowcaseItem> {
-            public ShowcaseItemAdapter(Context context, ArrayList<ShowcaseItem> showcaseItems) {
-                super(context, R.layout.listitem_showcase, showcaseItems);
-            }
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                // Get the data item for this position
-                ShowcaseItem item = getItem(position);
-
-                // Check if an existing view is being reused, otherwise inflate the view
-                if (convertView == null) {
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.listitem_showcase, parent, false);
-                }
-
-                // Lookup view for data population
-                TextView tv0 = (TextView) convertView.findViewById(R.id.text);
-                tv0.setText(item.text);
-
-                ImageView iv0 = (ImageView) convertView.findViewById(R.id.thumbnail);
-                if (item.getThumbnailFullFilename() == null) {
-                    iv0.setImageBitmap(null);
-                    iv0.setVisibility(View.GONE);
-                } else {
-                    Bitmap bmp = BitmapFactory.decodeFile(item.getThumbnailFullFilename());
-                    iv0.setImageBitmap(bmp);
-                    iv0.setVisibility(View.VISIBLE);
-                }
-
-                // Populate the data into the template view using the data object
-//                tv1.setText(item.directory + item.resourceFn);
-//                tv2.setText(item.directory + item.thumbnailFn);
-
-                // Return the completed view to render on screen
-                return convertView;
-            }
-        }
-
 
         private ArrayList<ShowcaseItem> getShowcaseFileListFromSDCard() {
             ArrayList<ShowcaseItem> items = new ArrayList<ShowcaseItem>();
