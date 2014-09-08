@@ -86,7 +86,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
             showcaseItems = getShowcaseFileListFromSDCard();
             showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "https://www.aerzte-ohne-grenzen.at/spenden", null, "Jetzt Spenden"));
             showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "http://www.break-the-silence.at", null, "Break The Silence"));
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.INTERNAL, null, "newsletter", null, "Newsletter"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "https://www.aerzte-ohne-grenzen.at/newsletter/newsletter-abonnieren", null, "Newsletter"));
 
             listAdapter = new ShowcaseItemAdapter(getActivity().getBaseContext(), showcaseItems);
             setListAdapter(listAdapter);

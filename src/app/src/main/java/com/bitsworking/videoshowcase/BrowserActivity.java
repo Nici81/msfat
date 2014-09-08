@@ -34,7 +34,6 @@ public class BrowserActivity extends Activity {
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -68,9 +67,11 @@ public class BrowserActivity extends Activity {
             View rootView = inflater.inflate(R.layout.fragment_browser, container, false);
 
             WebView webview = (WebView) rootView.findViewById(R.id.webView);
+
             webview.getSettings().setJavaScriptEnabled(true);
-            webview.setWebViewClient(new LimitingWebViewClient());
             webview.getSettings().setBuiltInZoomControls(true);
+            webview.setWebViewClient(new LimitingWebViewClient());
+
             webview.loadUrl(getArguments().getString("url"));
             return rootView;
         }
