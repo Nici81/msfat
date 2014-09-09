@@ -5,6 +5,7 @@ public interface Constants {
     static final String BUILD_NUMBER = "@CONFIG.BUILD_NUMBER@";
 
     static final String SD_DIRECTORY_VIDEOS = "/VIDEOSHOWCASE";
+    static final String PASSWORD_EXIT = "ente";
 
     static final Boolean HIDE_SYSTEM_UI = false;
     static final Boolean KEEP_SCREEN_ON = true;

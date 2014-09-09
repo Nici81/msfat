@@ -195,21 +195,21 @@ public class VideoShowcaseActivity extends Activity implements Constants {
             @Override
             public void run() {
                 final EditText input = new EditText(getActivity());
-                input.setHint("Password");
+                input.setHint(getString(R.string.password));
                 input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
                 new AlertDialog.Builder(getActivity())
-                        .setTitle("Exit?")
+                        .setTitle(getString(R.string.dialog_title_exit))
                         .setView(input)
-                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 String s = input.getText().toString();
-                                if (s.equals("ente")) {
+                                if (s.equals(PASSWORD_EXIT)) {
                                     getActivity().finish();
                                 }
                             }
                         })
-                        .setNegativeButton("Cancel", null)
+                        .setNegativeButton(getString(R.string.cancel), null)
                         .show();
             }
         }
@@ -246,10 +246,10 @@ public class VideoShowcaseActivity extends Activity implements Constants {
     private void hideSystemUi() {
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     Runnable mHideRunnable = new Runnable() {

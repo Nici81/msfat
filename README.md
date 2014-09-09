@@ -53,3 +53,11 @@ This can be achieved in two ways:
 Hide System UI
 
 * https://developer.android.com/training/system-ui/immersive.html
+
+
+Quitting the App
+----------------
+
+An easy way to exit is by having a region in the app which reacts to a certain number of clicks.
+In this video showcase app we use the topmost logo as click receiver. After about 10 clicks with
+less than 1s delay between, an exit dialog with a password input field is displayed.
