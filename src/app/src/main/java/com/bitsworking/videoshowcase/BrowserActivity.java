@@ -1,7 +1,9 @@
 package com.bitsworking.videoshowcase;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -32,6 +34,15 @@ public class BrowserActivity extends Activity {
                     .add(R.id.container, fragment)
                     .commit();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        // For long press home button (recent app activity or google now) or recent app button ...
+        super.onPause();
+        ActivityManager activityManager = (ActivityManager) getApplicationContext()
+                .getSystemService(Context.ACTIVITY_SERVICE);
+        activityManager.moveTaskToFront(getTaskId(), 0);
     }
 
     @Override
@@ -84,15 +95,16 @@ public class BrowserActivity extends Activity {
                 Log.v(TAG, String.format("url: %s, host: %s", url, Uri.parse(url).getHost()));
 
                 if (Uri.parse(url).getHost() == null) {
-                    return false;
+                    // Don't allow
+                    return true;
                 }
 
                 if ((Uri.parse(url).getHost().equals("www.aerzte-ohne-grenzen.at")) || (Uri.parse(url).getHost().equals("www.break-the-silence.at"))) {
-                    // This is my web site, so do not override; let my WebView load the page
+                    // Allow
                     return false;
                 }
 
-                // Otherwise, the link is not for a page on my site, so do nothing
+                // Otherwise, the link is not for a page on my site, so disallow
                 Toast.makeText(getActivity(), "Outside links are not supported", Toast.LENGTH_LONG).show();
                 return true;
             }

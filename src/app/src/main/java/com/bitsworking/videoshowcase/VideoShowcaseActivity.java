@@ -2,9 +2,11 @@ package com.bitsworking.videoshowcase;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ListFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +16,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.MediaStore;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +27,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -84,7 +88,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
 
     @Override
     protected void onPause() {
-        // For long press home button( recent app activity or google now) or recent app button ...
+        // For long press home button (recent app activity or google now) or recent app button ...
         super.onPause();
         ActivityManager activityManager = (ActivityManager) getApplicationContext()
                 .getSystemService(Context.ACTIVITY_SERVICE);
@@ -118,6 +122,10 @@ public class VideoShowcaseActivity extends Activity implements Constants {
 
         private ArrayList<ShowcaseItem> showcaseItems = null;
 
+        private Handler mHandler = new Handler();
+        private long lastTouchMs = 0;
+        private int touchCount = 0;
+
         public ShowcaseFragment() {
         }
 
@@ -126,10 +134,11 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_videoshowcase, container, false);
 
+            final String dir = Tools.getSdCardDirectory();
             showcaseItems = getShowcaseFileListFromSDCard();
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "https://www.aerzte-ohne-grenzen.at/spenden", null, "Jetzt Spenden"));
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "http://www.break-the-silence.at", null, "Break The Silence"));
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, null, "https://www.aerzte-ohne-grenzen.at/newsletter/newsletter-abonnieren", null, "Newsletter Abonnieren"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, "https://www.aerzte-ohne-grenzen.at/spenden", "thumbnail_donate.png", "Jetzt Spenden"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, "http://www.break-the-silence.at", "thumbnail_breakthesilence.png", "Break The Silence"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, "https://www.aerzte-ohne-grenzen.at/newsletter/newsletter-abonnieren", "thumbnail_newsletter.png", "Newsletter Abonnieren"));
 
             GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
             gridview.setAdapter(new VideoGridAdapter(getActivity(), showcaseItems));
@@ -161,7 +170,48 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                 }
             });
 
+            // Add Exit handler
+            ImageView ivMsf = (ImageView) rootView.findViewById(R.id.img_msf);
+            ivMsf.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (lastTouchMs > 0) {
+                        long msDiff = System.currentTimeMillis() - lastTouchMs;
+                        touchCount = (msDiff > 1000) ? 0 : ++touchCount;
+                        Log.v(TAG, "" + touchCount);
+
+                        if (touchCount > 8) {
+                            mHandler.removeCallbacksAndMessages(null);
+                            mHandler.postDelayed(new ExitDialogRunnable(), 1000);
+                        }
+                    }
+                    lastTouchMs = System.currentTimeMillis();
+                }
+            });
             return rootView;
+        }
+
+        public class ExitDialogRunnable implements Runnable {
+            @Override
+            public void run() {
+                final EditText input = new EditText(getActivity());
+                input.setHint("Password");
+                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Exit?")
+                        .setView(input)
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                String s = input.getText().toString();
+                                if (s.equals("ente")) {
+                                    getActivity().finish();
+                                }
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
         }
 
         private ArrayList<ShowcaseItem> getShowcaseFileListFromSDCard() {
