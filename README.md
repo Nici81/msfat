@@ -28,6 +28,29 @@ Video Files
   * Thumbnail: `thumbnail_video#.png` (eg. `thumbnail_video1.png`)
 
 
+Keep App Running and in Foreground (Kiosk Mode)
+-----------------------------------------------
+
+It's important that the showcase app is always running and on top (called 'Kiosk mode'). This is best achieved by having
+the app act as Home Screen (Android 4.2+): http://stackoverflow.com/a/19313091
+
+Furthermore, external apps such as [Autostart and StaY!](https://play.google.com/store/apps/details?id=com.atasoglou.autostartandstay)
+can keep an app running in the foreground.
+
+Other Links
+
+* Immersive System UI: https://developer.android.com/training/system-ui/immersive.html
+* App Persistance: http://stackoverflow.com/a/24251210
+
+
+Quitting the App
+----------------
+
+An easy way to exit is by having a region in the app which reacts to a certain number of clicks.
+In this video showcase app we use the topmost logo as click receiver. After about 10 clicks with
+less than 1s delay between, an exit dialog with a password input field is displayed.
+
+
 Restricted Internet Access
 --------------------------
 
@@ -38,26 +61,3 @@ There are several options to restrict internet access on the device:
 * Custom VPN
 * ...
 
-
-Keep App Running and in Foreground (Kiosk Mode)
------------------------------------------------
-
-It's important that the showcase app is always running and on top (called 'Kiosk mode'). 
-This can be achieved in two ways:
-
-* External App: [Autostart and StaY!](https://play.google.com/store/apps/details?id=com.atasoglou.autostartandstay)
-* Via Code: 
-  * http://stackoverflow.com/a/24251210 (App persistance)
-  * http://stackoverflow.com/a/19313091 (Be a home screen)
-
-Hide System UI
-
-* https://developer.android.com/training/system-ui/immersive.html
-
-
-Quitting the App
-----------------
-
-An easy way to exit is by having a region in the app which reacts to a certain number of clicks.
-In this video showcase app we use the topmost logo as click receiver. After about 10 clicks with
-less than 1s delay between, an exit dialog with a password input field is displayed.
