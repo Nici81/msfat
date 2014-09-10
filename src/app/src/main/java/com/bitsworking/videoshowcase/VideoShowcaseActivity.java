@@ -7,7 +7,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,10 +35,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 /**
@@ -263,12 +260,11 @@ public class VideoShowcaseActivity extends Activity implements Constants {
     }
 
     private void hideSystemUi() {
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     Runnable mHideSystemUiRunnable = new Runnable() {
@@ -281,7 +277,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
     private Thread mUpdateThread = new Thread() {
         @Override
         public void run() {
-            try{
+            try {
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpGet request = new HttpGet();
                 URI website = new URI(URL_UPDATE_VERSION);
