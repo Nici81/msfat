@@ -152,6 +152,9 @@ public class VideoShowcaseActivity extends Activity implements Constants {
             final String dir = Tools.getSdCardDirectory();
             showcaseItems = getShowcaseFileListFromSDCard();
 //            showcaseItems.addAll(getShowcaseFileListFromSDCard());
+//            showcaseItems.addAll(getShowcaseFileListFromSDCard());
+
+            // Link Items
             showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_SPENDEN, "thumbnail_donate.png", "Jetzt Spenden"));
             showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_BREAKTHESILENCE, "thumbnail_breakthesilence.png", "Break The Silence"));
             showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_NEWSLETTER, "thumbnail_newsletter.png", "Newsletter Abonnieren"));

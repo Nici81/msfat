@@ -1,6 +1,8 @@
 package com.bitsworking.videoshowcase.datatypes;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 
 /**
@@ -20,12 +22,17 @@ public class ShowcaseItem {
     public String thumbnailFn = null;
     public String directory = null;
     public String text = "";
+    public Bitmap bitmap_thumbnail = null;
 
     public ShowcaseItem(SHOWCASE_ITEM_TYPE type, String directory, String resourceFn, String thumbnailFn, String text) {
         this.type = type;
         this.directory = directory;
         this.resourceFn = resourceFn;
         this.thumbnailFn = thumbnailFn;
+
+        if (this.thumbnailFn != null) {
+            this.bitmap_thumbnail = BitmapFactory.decodeFile(getThumbnailFullFilename());
+        }
 
         if (text != null) {
             this.text = text;

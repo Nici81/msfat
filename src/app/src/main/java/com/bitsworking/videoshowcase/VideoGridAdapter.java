@@ -53,14 +53,7 @@ public class VideoGridAdapter extends BaseAdapter {
         tv0.setText(item.text);
 
         ImageView iv0 = (ImageView) convertView.findViewById(R.id.thumbnail);
-        if (item.getThumbnailFullFilename() == null) {
-            iv0.setImageBitmap(null);
-//            iv0.setVisibility(View.GONE);
-        } else {
-            Bitmap bmp = BitmapFactory.decodeFile(item.getThumbnailFullFilename());
-            iv0.setImageBitmap(bmp);
-//            iv0.setVisibility(View.VISIBLE);
-        }
+        iv0.setImageBitmap(item.bitmap_thumbnail);
 
         return convertView;
     }
