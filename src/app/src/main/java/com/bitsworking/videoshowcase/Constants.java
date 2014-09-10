@@ -7,8 +7,8 @@ public interface Constants {
     static final String SD_DIRECTORY_VIDEOS = "/VIDEOSHOWCASE";
     static final String PASSWORD_EXIT = "medex14";
 
-    static final String LINK_SPENDEN = "https://www.aerzte-ohne-grenzen.at/spenden";
-    static final String LINK_NEWSLETTER = "https://www.aerzte-ohne-grenzen.at/newsletter/newsletter-abonnieren";
+    static final String LINK_SPENDEN = "https://www.aerzte-ohne-grenzen.at/index.php?id=1298&utm_source=ausstellung&utm_medium=filmbox&utm_content=Spendenlink&utm_campaign=medex";
+    static final String LINK_NEWSLETTER = "https://www.aerzte-ohne-grenzen.at/newsletter/newsletter-abonnieren/?utm_source=ausstellung&utm_medium=filmbox&utm_content=NLAnmeldung&utm_campaign=medex";
     static final String LINK_BREAKTHESILENCE = "http://www.break-the-silence.at";
 
     static final Boolean KIOSK_MODE_DISALLOW_APP_SWITCHING = true;

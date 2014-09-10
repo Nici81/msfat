@@ -94,10 +94,14 @@ public class VideoShowcaseActivity extends Activity implements Constants {
         // For long press home button (recent app activity or google now) or recent app button ...
         super.onPause();
 
-        if (System.currentTimeMillis() - settingsLaunchedTime > 1000) {
-            ActivityManager activityManager = (ActivityManager) getApplicationContext()
-                    .getSystemService(Context.ACTIVITY_SERVICE);
-            activityManager.moveTaskToFront(getTaskId(), 0);
+        if (KIOSK_MODE_DISALLOW_APP_SWITCHING) {
+            // Reorder this task on top to avoid app switcher.
+            // Only do this if we didn't launch the settings.
+            if (System.currentTimeMillis() - settingsLaunchedTime > 1000) {
+                ActivityManager activityManager = (ActivityManager) getApplicationContext()
+                        .getSystemService(Context.ACTIVITY_SERVICE);
+                activityManager.moveTaskToFront(getTaskId(), 0);
+            }
         }
     }
 
