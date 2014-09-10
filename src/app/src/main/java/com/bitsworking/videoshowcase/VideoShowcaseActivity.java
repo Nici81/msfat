@@ -4,15 +4,12 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.ListFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.MediaStore;
@@ -23,20 +20,26 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bitsworking.videoshowcase.datatypes.ShowcaseItem;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 /**
@@ -45,6 +48,7 @@ import java.util.ArrayList;
 public class VideoShowcaseActivity extends Activity implements Constants {
     private final String TAG = "VideoShowcaseActivity";
     Handler mHandler = new Handler();
+    private long settingsLaunchedTime = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                 @Override
                 public void onSystemUiVisibilityChange(int visibility) {
                     if (visibility == 0) {
-                        mHandler.postDelayed(mHideRunnable, 2000);
+                        mHandler.postDelayed(mHideSystemUiRunnable, 2000);
                     }
                 }
             });
@@ -72,6 +76,8 @@ public class VideoShowcaseActivity extends Activity implements Constants {
             PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
             wakeLock.acquire();
         }
+
+        mUpdateThread.start();
 
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
@@ -90,9 +96,18 @@ public class VideoShowcaseActivity extends Activity implements Constants {
     protected void onPause() {
         // For long press home button (recent app activity or google now) or recent app button ...
         super.onPause();
-        ActivityManager activityManager = (ActivityManager) getApplicationContext()
-                .getSystemService(Context.ACTIVITY_SERVICE);
-        activityManager.moveTaskToFront(getTaskId(), 0);
+
+        if (System.currentTimeMillis() - settingsLaunchedTime > 1000) {
+            ActivityManager activityManager = (ActivityManager) getApplicationContext()
+                    .getSystemService(Context.ACTIVITY_SERVICE);
+            activityManager.moveTaskToFront(getTaskId(), 0);
+        }
+    }
+
+    public void launchSettings() {
+        settingsLaunchedTime = System.currentTimeMillis();
+        startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
+        finish();
     }
 
     @Override
@@ -136,9 +151,10 @@ public class VideoShowcaseActivity extends Activity implements Constants {
 
             final String dir = Tools.getSdCardDirectory();
             showcaseItems = getShowcaseFileListFromSDCard();
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, "https://www.aerzte-ohne-grenzen.at/spenden", "thumbnail_donate.png", "Jetzt Spenden"));
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, "http://www.break-the-silence.at", "thumbnail_breakthesilence.png", "Break The Silence"));
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, "https://www.aerzte-ohne-grenzen.at/newsletter/newsletter-abonnieren", "thumbnail_newsletter.png", "Newsletter Abonnieren"));
+//            showcaseItems.addAll(getShowcaseFileListFromSDCard());
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_SPENDEN, "thumbnail_donate.png", "Jetzt Spenden"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_BREAKTHESILENCE, "thumbnail_breakthesilence.png", "Break The Silence"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_NEWSLETTER, "thumbnail_newsletter.png", "Newsletter Abonnieren"));
 
             GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
             gridview.setAdapter(new VideoGridAdapter(getActivity(), showcaseItems));
@@ -205,7 +221,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 String s = input.getText().toString();
                                 if (s.equals(PASSWORD_EXIT)) {
-                                    getActivity().finish();
+                                    ((VideoShowcaseActivity) getActivity()).launchSettings();
                                 }
                             }
                         })
@@ -252,11 +268,53 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                 | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
-    Runnable mHideRunnable = new Runnable() {
+    Runnable mHideSystemUiRunnable = new Runnable() {
         @Override
         public void run() {
             hideSystemUi();
         }
     };
 
+    private Thread mUpdateThread = new Thread() {
+        @Override
+        public void run() {
+            try{
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpGet request = new HttpGet();
+                URI website = new URI(URL_UPDATE_VERSION);
+                request.setURI(website);
+                HttpResponse response = httpclient.execute(request);
+                BufferedReader in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+                // Compare versions and possibly show download popup
+                int version_latest = Integer.valueOf(in.readLine());
+                int version_now = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+                Log.v(TAG, String.format("Version: now=%s, latest=%s", version_now, version_latest));
+                if (version_latest > version_now) {
+                    mHandler.post(mShowUpdateRunnable);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    // New version available popup
+    Runnable mShowUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            new AlertDialog.Builder(VideoShowcaseActivity.this)
+                    .setTitle("An update is available!")
+                    .setPositiveButton("Download", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse(URL_UPDATE_APK));
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show();
+        }
+    };
 }
