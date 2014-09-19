@@ -11,12 +11,6 @@
         android:layout_height="wrap_content"
         android:src="@drawable/img_msf_german_small"/>
 
-    <ImageView
-        android:layout_alignParentLeft="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/img_breakthesilence_small"/>
-
     <GridView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/gridview"
         android:layout_width="match_parent"
