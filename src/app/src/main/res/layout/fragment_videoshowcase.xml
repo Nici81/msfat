@@ -7,9 +7,9 @@
     <ImageView
         android:id="@+id/img_msf"
         android:layout_alignParentRight="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/logo_msf_biling_black"/>
+        android:layout_width="200dp"
+        android:layout_height="99dp"
+        android:src="@drawable/msf_logo"/>
 
     <GridView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/gridview"

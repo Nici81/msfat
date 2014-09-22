@@ -107,9 +107,9 @@ public class VideoShowcaseActivity extends Activity implements Constants {
 
     public void logVideoPlayback(String s) {
         try {
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd,HH:mm:ss]");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd;HH:mm:ss");
             Date date = new Date();
-            fos_stats.write(dateFormat.format(date) + "," + s + "\n");
+            fos_stats.write(dateFormat.format(date) + ";" + s + "\n");
             fos_stats.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -144,7 +144,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
         settingsLaunchedTime = System.currentTimeMillis();
         try {
             fos_stats.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
@@ -217,7 +217,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                         intentToPlayVideo.setDataAndType(item.getResourceUri(), "video/*");
                         intentToPlayVideo.putExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
 
-                        ((VideoShowcaseActivity) getActivity()).logVideoPlayback("video," + item.getResourceString());
+                        ((VideoShowcaseActivity) getActivity()).logVideoPlayback("video;" + item.getResourceString());
 
                         // Check and launch Intent
                         if (Tools.isCallable(getActivity(), intentToPlayVideo)) {
@@ -229,7 +229,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                     } else if (item.type == ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK) {
                         Intent intent = new Intent(getActivity(), BrowserActivity.class);
                         intent.putExtra("url", item.getResourceString());
-                        ((VideoShowcaseActivity) getActivity()).logVideoPlayback("link," + item.getResourceString());
+                        ((VideoShowcaseActivity) getActivity()).logVideoPlayback("link;" + item.getResourceString());
                         startActivity(intent);
                     }
                 }
