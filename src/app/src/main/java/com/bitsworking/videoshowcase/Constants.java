@@ -18,4 +18,7 @@ public interface Constants {
 
     static final String URL_UPDATE_VERSION = "http://www.bitsworking.at/msf/app.version";
     static final String URL_UPDATE_APK = "http://www.bitsworking.at/msf/app.apk";
+
+    static final String STATS_PATH = "/mnt/usb_storage";
+    static final String STATS_FILENAME = "stats.csv";
 }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -82,5 +83,20 @@ public class Tools {
             hexStr +=  Integer.toString( ( digest[i] & 0xff ) + 0x100, 16).substring( 1 );
         }
         return hexStr;
+    }
+
+    public static boolean canWriteUsbStick() {
+        File path = new File(Constants.STATS_PATH);
+        if (!path.exists()) {
+            Log.e("Tools", "usbstick does not exist");
+            return false;
+        } else if (!path.isDirectory()) {
+            Log.e("Tools", "usbstick not a dir");
+            return false;
+        } else if (!path.canWrite()) {
+            Log.e("Tools", "usbstick cannot write");
+            return false;
+        }
+        return true;
     }
 }

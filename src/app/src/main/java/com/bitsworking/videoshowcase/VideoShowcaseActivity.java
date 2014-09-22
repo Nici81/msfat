@@ -34,10 +34,20 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by Chris Hager <chris@linuxuser.at> on 07/09/14.
@@ -46,6 +56,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
     private final String TAG = "VideoShowcaseActivity";
     Handler mHandler = new Handler();
     private long settingsLaunchedTime = 0;
+    BufferedWriter fos_stats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +92,28 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                     .add(R.id.container, new ShowcaseFragment())
                     .commit();
         }
+
+        if (Tools.canWriteUsbStick()) {
+            File file = new File(STATS_PATH + "/" + STATS_FILENAME);
+            try {
+                fos_stats = new BufferedWriter(new FileWriter(STATS_PATH + "/" + STATS_FILENAME, true));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void logVideoPlayback(String s) {
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]");
+            Date date = new Date();
+            fos_stats.write(dateFormat.format(date) + " " + s + "\n");
+            fos_stats.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -107,6 +140,11 @@ public class VideoShowcaseActivity extends Activity implements Constants {
 
     public void launchSettings() {
         settingsLaunchedTime = System.currentTimeMillis();
+        try {
+            fos_stats.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 0);
         finish();
     }
@@ -174,6 +212,8 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                         intentToPlayVideo.setDataAndType(item.getResourceUri(), "video/*");
                         intentToPlayVideo.putExtra(MediaStore.EXTRA_FINISH_ON_COMPLETION, true);
 
+                        ((VideoShowcaseActivity) getActivity()).logVideoPlayback("Video clicked: " + item.getResourceString());
+
                         // Check and launch Intent
                         if (Tools.isCallable(getActivity(), intentToPlayVideo)) {
                             startActivity(intentToPlayVideo);
@@ -184,8 +224,8 @@ public class VideoShowcaseActivity extends Activity implements Constants {
                     } else if (item.type == ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK) {
                         Intent intent = new Intent(getActivity(), BrowserActivity.class);
                         intent.putExtra("url", item.getResourceString());
+                        ((VideoShowcaseActivity) getActivity()).logVideoPlayback("Link clicked: " + item.getResourceString());
                         startActivity(intent);
-
                     }
                 }
             });
