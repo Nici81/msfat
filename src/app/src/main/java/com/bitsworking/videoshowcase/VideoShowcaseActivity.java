@@ -176,7 +176,7 @@ public class VideoShowcaseActivity extends Activity implements Constants {
     public static class ShowcaseFragment extends Fragment {
         private final String TAG = "VideoShowcaseActivity#ShowcaseFragment";
 
-        private ArrayList<ShowcaseItem> showcaseItems = null;
+        private ArrayList<ShowcaseItem> showcaseItems = new ArrayList<ShowcaseItem>();
 
         private Handler mHandler = new Handler();
         private long lastTouchMs = 0;
@@ -191,14 +191,32 @@ public class VideoShowcaseActivity extends Activity implements Constants {
             View rootView = inflater.inflate(R.layout.fragment_videoshowcase, container, false);
 
             final String dir = Tools.getSdCardDirectory();
-            showcaseItems = getShowcaseFileListFromSDCard();
+            ArrayList<ShowcaseItem> showcaseItemsTmp = getShowcaseFileListFromSDCard();
 //            showcaseItems.addAll(getShowcaseFileListFromSDCard());
 //            showcaseItems.addAll(getShowcaseFileListFromSDCard());
 
+            for (int i=0; i<showcaseItemsTmp.size(); i++) {
+                if (showcaseItems.size() == 2)
+                    showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_NEWSLETTER, "thumbnail_newsletter.png", "Newsletter abonnieren"));
+//                    showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_BREAKTHESILENCE, "thumbnail_breakthesilence.png", "Break the Silence"));
+                if (showcaseItems.size() == 5)
+                    showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_SPENDEN, "thumbnail_donate.png", "Spende"));
+                if (showcaseItems.size() == 8)
+                    showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_BREAKTHESILENCE, "thumbnail_breakthesilence.png", "Break the Silence"));
+                showcaseItems.add(showcaseItemsTmp.get(i));
+            }
+
+//            if (showcaseItems.size() < 2)
+//            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_NEWSLETTER, "thumbnail_newsletter.png", "Newsletter abonnieren"));
+
+//            if (showcaseItems.size() < 5)
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_BREAKTHESILENCE, "thumbnail_breakthesilence.png", "Break the Silence"));
+            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_BREAKTHESILENCE, "thumbnail_breakthesilence.png", "Break the Silence"));
+//            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_SPENDEN, "thumbnail_donate.png", "Spende"));
+//            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_SPENDEN, "thumbnail_donate.png", "Spende"));
+
             // Link Items
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_SPENDEN, "thumbnail_donate.png", "Jetzt Spenden"));
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_BREAKTHESILENCE, "thumbnail_breakthesilence.png", "Break The Silence"));
-            showcaseItems.add(new ShowcaseItem(ShowcaseItem.SHOWCASE_ITEM_TYPE.LINK, dir, LINK_NEWSLETTER, "thumbnail_newsletter.png", "Newsletter Abonnieren"));
+
 
             GridView gridview = (GridView) rootView.findViewById(R.id.gridview);
             gridview.setAdapter(new VideoGridAdapter(getActivity(), showcaseItems));
