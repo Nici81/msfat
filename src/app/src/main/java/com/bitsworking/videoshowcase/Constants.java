@@ -16,6 +16,7 @@ public interface Constants {
     static final Boolean HIDE_SYSTEM_UI = false;
     static final Boolean USE_WAKE_LOCK = false;
 
-    static final String URL_UPDATE_VERSION = "http://www.bitsworking.at/msf/app.version";
-    static final String URL_UPDATE_APK = "http://www.bitsworking.at/msf/app.apk";
+    static final String URL_UPDATE_VERSION = "https://github.com/Nici81/msfat/app.version";
+    https://github.com/Nici81/msfat
+    static final String URL_UPDATE_APK = "https://github.com/Nici81/msfat/app.apk";
 }
